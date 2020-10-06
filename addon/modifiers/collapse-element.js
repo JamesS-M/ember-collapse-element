@@ -1,4 +1,5 @@
 import Modifier from 'ember-modifier'
+import { later } from '@ember/runloop'
 
 export default class CollapseElementModifier extends Modifier {
   originalHeight = 0
@@ -6,11 +7,19 @@ export default class CollapseElementModifier extends Modifier {
   didInstall() {
     this.originalHeight = this.element.clientHeight
     let duration = this.args.named.duration || 0.25
-    this.element.style.transition = `max-height ${duration}s ease-in-out, margin ${duration}s ease-in-out, padding ${duration}s ease-in-out, opacity ${duration}s ease-in-out`
-    this.element.style.maxHeight = `${this.originalHeight}px`
+    later(() => {
+      // we can't set the transition until we've set the element's starting height (based on whether it should start collapsed or expanded)
+      this.element.style.transition = `max-height ${duration}s ease-in-out, margin ${duration}s ease-in-out, padding ${duration}s ease-in-out, opacity ${duration}s ease-in-out`
+    }, duration * 1000)
+    this.element.style.maxHeight = `${this.args.positional[0] ? 0 : this.originalHeight}px`
+    this.setStyles()
   }
 
   didUpdateArguments() {
+    this.setStyles()
+  }
+
+  setStyles() {
     let collapsed = this.args.positional[0]
     if (collapsed) {
       this.element.style.maxHeight = '0px'
