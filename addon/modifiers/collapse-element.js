@@ -14,7 +14,7 @@ export default class CollapseElementModifier extends Modifier {
       this.originalStyle.overflow = computedStyles.overflow
 
     let collapsed = this.args.positional[0]
-    let duration = 2
+    let duration = this.args.named.duration || 0.25
 
     if (!this.element.style.transition)
       this.element.style.transition = `max-height ${duration}s ease-in-out, margin ${duration}s ease-in-out, padding ${duration}s ease-in-out`
