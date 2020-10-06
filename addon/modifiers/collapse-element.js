@@ -1,34 +1,29 @@
 import Modifier from 'ember-modifier'
 
 export default class CollapseElementModifier extends Modifier {
-  originalStyle = {}
-  didReceiveArguments() {
-    const computedStyles = window.getComputedStyle(this.element)
-    if (!this.originalStyle.maxHeight)
-      this.originalStyle.maxHeight = this.element.clientHeight
-    if (!this.originalStyle.margin)
-      this.originalStyle.margin = computedStyles.margin
-    if (!this.originalStyle.padding)
-      this.originalStyle.margin = computedStyles.padding
-    if (!this.originalStyle.overflow)
-      this.originalStyle.overflow = computedStyles.overflow
+  originalHeight = 0
 
-    let collapsed = this.args.positional[0]
+  didInstall() {
+    this.originalHeight = this.element.clientHeight
     let duration = this.args.named.duration || 0.25
+    this.element.style.transition = `max-height ${duration}s ease-in-out, margin ${duration}s ease-in-out, padding ${duration}s ease-in-out, opacity ${duration}s ease-in-out`
+    this.element.style.maxHeight = `${this.originalHeight}px`
+  }
 
-    if (!this.element.style.transition)
-      this.element.style.transition = `max-height ${duration}s ease-in-out, margin ${duration}s ease-in-out, padding ${duration}s ease-in-out`
-
+  didUpdateArguments() {
+    let collapsed = this.args.positional[0]
     if (collapsed) {
       this.element.style.maxHeight = '0px'
       this.element.style.margin = '0px'
       this.element.style.padding = '0px'
       this.element.style.overflow = 'hidden'
+      this.element.style.opacity = 0
     } else {
-      this.element.style.maxHeight = `${this.originalStyle.maxHeight}px`
-      this.element.style.margin = `${this.originalStyle.margin}px`
-      this.element.style.padding = `${this.originalStyle.padding}px`
-      this.element.style.overflow = `${this.originalStyle.overflow}px`
+      this.element.style.maxHeight = `${this.originalHeight}px`
+      this.element.style.margin = null
+      this.element.style.padding = null
+      this.element.style.overflow = null
+      this.element.style.opacity = 1
     }
   }
 }
