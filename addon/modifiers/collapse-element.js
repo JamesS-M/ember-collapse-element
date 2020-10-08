@@ -6,12 +6,13 @@ export default class CollapseElementModifier extends Modifier {
 
   didInstall() {
     this.originalHeight = this.element.clientHeight
+    let minimumHeight = this.args.named.minimumHeight || 0
     let duration = this.args.named.duration || 0.25
     later(() => {
       // we can't set the transition until we've set the element's starting height (based on whether it should start collapsed or expanded)
       this.element.style.transition = `max-height ${duration}s ease-in-out, margin ${duration}s ease-in-out, padding ${duration}s ease-in-out, opacity ${duration}s ease-in-out`
     }, duration * 1000)
-    this.element.style.maxHeight = `${this.args.positional[0] ? 0 : this.originalHeight}px`
+    this.element.style.maxHeight = `${this.args.positional[0] ? minimumHeight : this.originalHeight}px`
     this.setStyles()
   }
 
@@ -21,8 +22,9 @@ export default class CollapseElementModifier extends Modifier {
 
   setStyles() {
     let collapsed = this.args.positional[0]
+    let minimumHeight = this.args.named.minimumHeight || 0
     if (collapsed) {
-      this.element.style.maxHeight = '0px'
+      this.element.style.maxHeight = `${minimumHeight}px`
       this.element.style.margin = '0px'
       this.element.style.padding = '0px'
       this.element.style.overflow = 'hidden'
